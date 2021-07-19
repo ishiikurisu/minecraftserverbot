@@ -1,3 +1,5 @@
 ---
 token: TOKEN
 server_directory: /path/to/minecraft/server
+allowed_users:
+- 1  # include id here
