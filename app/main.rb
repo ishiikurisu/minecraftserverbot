@@ -6,6 +6,7 @@ class App
         @config = config
         @token = @config['token']
         @mc_server_dir = @config['server_directory']
+        @allowed_users = @config['allowed_users']
         @session_name = "mc"
         @terminal_file = "#{@mc_server_dir}/terminal.log"
         @started = false
@@ -49,14 +50,16 @@ class App
         puts "# Minecraft Server Bot"
         Telegram::Bot::Client.run(@token) do |bot|
             bot.listen do |message|
-                case message.text
-                when "/start"
-                    result = start_server bot, message
-                    if result == nil
-                        bot.api.send_message(chat_id: message.chat.id, text: "Server is already on!")
+                if @allowed_users.include? message.from.id
+                    case message.text
+                    when "/start"
+                        result = start_server bot, message
+                        if result == nil
+                            bot.api.send_message(chat_id: message.chat.id, text: "Server is already on!")
+                        end
+                    when "/stop"
+                        stop_server()
                     end
-                when "/stop"
-                    stop_server()
                 end
             end
         end
