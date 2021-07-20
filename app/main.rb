@@ -1,5 +1,6 @@
 require "yaml"
-require 'telegram/bot'
+require "telegram/bot"
+require "./app/lib.rb"
 
 class App
     def initialize config
@@ -51,11 +52,18 @@ class App
         Telegram::Bot::Client.run(@token) do |bot|
             bot.listen do |message|
                 if @allowed_users.include? message.from.id
-                    case message.text
+                    command = detect_command message.text
+
+                    case command
                     when "/start"
                         result = start_server bot, message
                         if result == nil
                             bot.api.send_message(chat_id: message.chat.id, text: "Server is already on!")
+                        end
+                    when "/command"
+                        command = extract_command_arguments message.text
+                        if command.length > 0
+                            send_command command
                         end
                     when "/stop"
                         stop_server()
